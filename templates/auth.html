@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Task Manager – Login / Sign Up</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root { --bg:#0e0f13; --panel:#151821; --muted:#8b91a1; --text:#e9ecf1; --accent:#6aa6ff; --error:#ff6b6b; --ok:#35d07f; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background: radial-gradient(1200px 600px at 70% -20%, #1b2140 0%, #0e0f13 60%), var(--bg); color: var(--text); }
+    .shell { min-height: 100dvh; display:flex; align-items:center; justify-content:center; padding: 32px; }
+    .card { width: 100%; max-width: 480px; background: linear-gradient(180deg, #191c26 0%, #141722 100%); border:1px solid #24293b; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.35); overflow:hidden; }
+    .brand { padding: 20px 24px; display:flex; align-items:center; gap:12px; border-bottom:1px solid #22263a; background: rgba(255,255,255,0.02); }
+    .logo { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #6aa6ff, #9f7aea); box-shadow: 0 6px 24px rgba(106,166,255,.35) }
+    .brand h1 { font-size: 16px; margin:0; letter-spacing:.3px; font-weight:600; }
+    .tabs { display:flex; }
+    .tab { flex:1; text-align:center; padding:14px 0; cursor:pointer; color:var(--muted); border-bottom:2px solid transparent; user-select:none; }
+    .tab.active { color:var(--text); border-color: var(--accent); background: rgba(106,166,255,.06); }
+    .panel { padding: 22px 24px 26px; display:none; }
+    .panel.active { display:block; }
+    .row { margin: 12px 0 0; }
+    label { display:block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input { width:100%; padding: 12px 12px; border-radius: 10px; border:1px solid #24293b; background:#0f121a; color:var(--text); outline:none; }
+    input:focus { border-color:#2d375a; box-shadow: 0 0 0 3px rgba(106,166,255,.15); }
+    .btn { width:100%; margin-top:16px; padding:12px 14px; border:none; border-radius:12px; cursor:pointer; background: linear-gradient(135deg, #6aa6ff, #9f7aea); color:white; font-weight:600; }
+    .btn:disabled { opacity:.6; cursor:not-allowed; }
+    .help { margin-top: 12px; font-size:12px; color: var(--muted); }
+    .status { margin-top:14px; padding:10px 12px; border-radius:10px; font-size: 13px; display:none; }
+    .status.error { background: rgba(255,107,107,.12); color: #ffb3b3; border:1px solid rgba(255,107,107,.25); display:block; }
+    .status.ok { background: rgba(53,208,127,.12); color: #b6f0d2; border:1px solid rgba(53,208,127,.25); display:block; }
+    .tiny { font-size: 12px; margin-top: 10px; display:block; color: var(--muted); text-align:center; }
+    a.link { color: var(--accent); text-decoration: none; }
+    .divider { height:1px; background:#22263a; margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="card" role="application" aria-label="Login and Sign Up">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <h1>Task Manager</h1>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Choose Login or Sign Up">
+        <div id="tab-login" class="tab active" role="tab" aria-selected="true" aria-controls="panel-login" tabindex="0">Login</div>
+        <div id="tab-signup" class="tab" role="tab" aria-selected="false" aria-controls="panel-signup" tabindex="-1">Sign Up</div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- LOGIN -->
+      <div id="panel-login" class="panel active" role="tabpanel" aria-labelledby="tab-login">
+        <form id="form-login" novalidate>
+          <div class="row">
+            <label for="login-uid">Email or Username</label>
+            <input id="login-uid" name="email_or_username" autocomplete="username" placeholder="jane@smu.edu or janedoe" required />
+          </div>
+          <div class="row">
+            <label for="login-pw">Password</label>
+            <input id="login-pw" type="password" name="password" autocomplete="current-password" placeholder="••••••••" required />
+          </div>
+          <button class="btn" id="btn-login" type="submit">Login</button>
+          <div id="status-login" class="status" role="status"></div>
+        </form>
+      </div>
+
+      <!-- SIGN UP -->
+      <div id="panel-signup" class="panel" role="tabpanel" aria-labelledby="tab-signup">
+        <form id="form-signup" novalidate>
+          <div class="row">
+            <label for="su-email">Email</label>
+            <input id="su-email" name="email" type="email" autocomplete="email" placeholder="jane@smu.edu" required />
+          </div>
+          <div class="row">
+            <label for="su-username">Username</label>
+            <input id="su-username" name="username" autocomplete="username" placeholder="janedoe" required />
+          </div>
+          <div class="row">
+            <label for="su-password">Password</label>
+            <input id="su-password" type="password" name="password" autocomplete="new-password" placeholder="min 6 chars" minlength="6" required />
+          </div>
+          <button class="btn" id="btn-signup" type="submit">Create Account</button>
+          <div id="status-signup" class="status" role="status"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tabs
+    const tabLogin = document.getElementById('tab-login');
+    const tabSignup = document.getElementById('tab-signup');
+    const panelLogin = document.getElementById('panel-login');
+    const panelSignup = document.getElementById('panel-signup');
+
+    function activate(tab) {
+      const isLogin = tab === 'login';
+      tabLogin.classList.toggle('active', isLogin);
+      tabSignup.classList.toggle('active', !isLogin);
+      tabLogin.setAttribute('aria-selected', isLogin ? 'true' : 'false');
+      tabSignup.setAttribute('aria-selected', !isLogin ? 'true' : 'false');
+      tabLogin.tabIndex = isLogin ? 0 : -1;
+      tabSignup.tabIndex = !isLogin ? 0 : -1;
+      panelLogin.classList.toggle('active', isLogin);
+      panelSignup.classList.toggle('active', !isLogin);
+    }
+    tabLogin.onclick = () => activate('login');
+    tabSignup.onclick = () => activate('signup');
+
+    // Helpers
+    async function postJSON(url, data) {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const body = await r.json().catch(() => ({}));
+      return { ok: r.ok, status: r.status, statusText: r.statusText, body };
+    }
+    function setStatus(el, ok, msg) {
+      el.className = 'status ' + (ok ? 'ok' : 'error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    // Login flow
+    const loginForm = document.getElementById('form-login');
+    const loginStatus = document.getElementById('status-login');
+    const btnLogin = document.getElementById('btn-login');
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginStatus.style.display = 'none';
+      btnLogin.disabled = true;
+
+      const data = Object.fromEntries(new FormData(loginForm));
+      if (!data.email_or_username || !data.password) {
+        setStatus(loginStatus, false, 'Please fill in both fields.');
+        btnLogin.disabled = false;
+        return;
+      }
+
+      const res = await postJSON('/auth/login', data);
+      if (res.ok) {
+        setStatus(loginStatus, true, 'Login successful! Redirecting to Task Manager…');
+        window.location.href = "/app";
+      }else {
+        setStatus(loginStatus, false, res.body?.error || res.status + ' ' + res.statusText);
+      }
+      btnLogin.disabled = false;
+    });
+
+    // Sign up flow
+    const signupForm = document.getElementById('form-signup');
+    const signupStatus = document.getElementById('status-signup');
+    const btnSignup = document.getElementById('btn-signup');
+
+    signupForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      signupStatus.style.display = 'none';
+      btnSignup.disabled = true;
+
+      const data = Object.fromEntries(new FormData(signupForm));
+      if (!data.email || !data.username || !data.password) {
+        setStatus(signupStatus, false, 'All fields are required.');
+        btnSignup.disabled = false;
+        return;
+      }
+
+      const res = await postJSON('/auth/signup', data);
+      if (res.ok) {
+        setStatus(signupStatus, true, 'Account created! Redirecting to Task Manager…');
+        window.location.href = "/app";
+      }else {
+        setStatus(signupStatus, false, res.body?.error || res.status + ' ' + res.statusText);
+      }
+      btnSignup.disabled = false;
+    });
+  </script>
+</body>
+</html>

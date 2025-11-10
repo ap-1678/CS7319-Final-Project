@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Task Manager</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:#0e0f13; color:#e9ecf1; }
+    header { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; background:#161a26; border-bottom:1px solid #24293b; }
+    h1 { margin:0; font-size:18px; }
+    .wrap { max-width: 980px; margin: 24px auto; padding: 0 16px; }
+    .card { background:#141722; border:1px solid #24293b; border-radius:14px; padding:16px; margin-bottom:16px; }
+    label { display:block; font-size:12px; color:#9aa1b3; margin:10px 0 4px; }
+    input, textarea, select { width:100%; padding:10px; border-radius:10px; border:1px solid #24293b; background:#0f121a; color:#e9ecf1; }
+    textarea { min-height:72px; }
+    .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .btn { padding:10px 14px; background:linear-gradient(135deg,#6aa6ff,#9f7aea); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:600; }
+    .btn.text { background:transparent; border:1px solid #2a2f45; }
+    .task { padding:12px; border:1px solid #24293b; border-radius:12px; margin-top:10px; background:#10131b; }
+    .task h3 { margin:0 0 6px; font-size:16px; }
+    .muted { color:#9aa1b3; font-size:12px; }
+    .flex { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .pill { font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid #2a2f45; }
+    .sub { display:flex; justify-content:space-between; align-items:center; padding:8px 10px; border-radius:8px; background:#0f121a; border:1px solid #24293b; margin-top:6px; }
+    .right { display:flex; gap:8px; align-items:center; }
+    .small { font-size:12px; }
+
+    /* Hide native calendar icon so we can use our own */
+    input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0; }
+    input[type="date"] { position: relative; }
+
+    /* Wrapper positions our custom button inside the input */
+    .date-wrap { position: relative; }
+    .date-wrap input[type="date"] { padding-right: 40px; }
+
+    /* Custom, bright calendar button */
+    .picker-btn {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      border: 1px solid #2a2f45; border-radius: 8px; background: #1b2030;
+      padding: 6px; display: inline-flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 0 2px rgba(106,166,255,.18);
+    }
+    .picker-btn:hover { background: #222842; }
+    .picker-btn svg { width: 16px; height: 16px; display: block; }
+
+    /* Make the icon bright */
+    .picker-btn svg path { stroke: #e9ecf1; }
+
+    /* Consistent control height across browsers */
+    :root { --control-h: 44px; }
+
+    /* REVERT any flex that may stretch fields in grid cells */
+    .row > div { display: block; }
+
+    /* Date wrapper: fill cell, clip any overflow from the overlayed button */
+    .date-wrap { position: relative; display: block; width: 100%; overflow: hidden; }
+
+    /* Inputs: identical box model so Title and Date align */
+    input, textarea, select { box-sizing: border-box; }
+    input, .date-wrap input[type="date"] {
+      height: var(--control-h);
+      line-height: calc(var(--control-h) - 2px);
+      padding: 10px 12px;
+      width: 100%;
+    }
+
+    /* Reserve space for custom picker button so text doesn't sit under it */
+    .date-wrap input[type="date"] { padding-right: 44px; }
+
+    /* Hide native icon; keep the native control functional */
+    input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0; }
+    input[type="date"] { color-scheme: dark; }
+
+    /* Overlay bright custom button; it DOES NOT affect layout */
+    .picker-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      height: calc(var(--control-h) - 12px);
+      width: 32px;
+      border: 1px solid #2a2f45;
+      border-radius: 8px;
+      background: #1b2030;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 0 2px rgba(106,166,255,.18);
+    }
+    .picker-btn:hover { background: #222842; }
+    .picker-btn svg { width: 16px; height: 16px; display: block; }
+    .picker-btn svg path { stroke: #e9ecf1; }
+
+    /* Compact, consistent checkbox for sub-tasks */
+    .sub input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #6aa6ff;       /* light blue theme color */
+      transform: translateY(1px);  /* vertically center better */
+      cursor: pointer;
+    }
+
+    /* Optional: tighter spacing between checkbox and text */
+    .sub label.small {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: #e9ecf1;
+    }
+
+  </style>
+</head>
+<body>
+<header>
+  <h1>Task Manager</h1>
+  <div class="flex">
+    <span id="username" class="muted" style="font-weight:600"></span>
+    <form action="/auth/logout" method="post" style="margin:0">
+      <button class="btn text" type="submit">Logout</button>
+    </form>
+  </div>
+</header>
+
+  <div class="wrap">
+
+    <div class="card">
+      <h2 style="margin:0 0 8px">Add Task</h2>
+      <div class="row">
+        <div>
+          <label>Title</label>
+          <input id="t-title" placeholder="e.g., Write Progress Report" />
+        </div>
+        <div>
+          <label>Overall Due Date</label>
+          <div class="date-wrap">
+            <input id="t-due" type="date" />
+            <button type="button" class="picker-btn" id="t-due-btn" aria-label="Show date picker" title="Show date picker">
+              <!-- clean, bright calendar icon (stroke adapts to CSS above) -->
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M7 3v3M17 3v3M4 9h16M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 13h3v3H8z" stroke-width="1.6" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <label>Description</label>
+      <textarea id="t-desc" placeholder="Short description"></textarea>
+      <label>Notes</label>
+      <textarea id="t-notes" placeholder="Any notes"></textarea>
+      <div style="margin-top:12px"><button class="btn" id="btn-add-task">Add Task</button></div>
+      <div id="status" class="muted" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0 0 8px">Your Tasks</h2>
+      <div id="list"></div>
+    </div>
+
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    async function api(path, options={}) {
+      const r = await fetch(path, { headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', ...options });
+      const j = await r.json().catch(()=> ({}));
+      if (!r.ok) throw new Error(j.error || (r.status+' '+r.statusText));
+      return j;
+    }
+
+    function fmtDate(s) { if (!s) return ''; try { return new Date(s).toLocaleDateString(); } catch { return s } }
+
+    async function loadUser() {
+      try {
+        const r = await fetch('/auth/me', { credentials: 'same-origin' });
+        const data = await r.json();
+        if (data && data.user && data.user.username) {
+          const span = document.getElementById('username');
+          if (span) span.textContent = data.user.username;
+          return true;
+        }
+      } catch (e) {}
+      // If no session/user, go back to login page
+      window.location.href = '/';
+      return false;
+    }
+
+    async function load() {
+      try {
+        const data = await api('/tasks');
+        renderList(data.tasks || []);
+      } catch (e) {
+        $('list').innerHTML = '<p class="muted">Could not load tasks: '+e.message+'</p>';
+      }
+    }
+
+    function renderList(tasks) {
+      const root = $('list');
+      if (tasks.length === 0) { root.innerHTML = '<p class="muted">No tasks yet.</p>'; return; }
+      root.innerHTML = '';
+      for (const t of tasks) {
+        const div = document.createElement('div');
+        div.className = 'task';
+        div.innerHTML = `
+          <h3>${t.title}</h3>
+          <div class="muted small">${t.description ? t.description : ''}</div>
+          <div class="flex" style="margin-top:6px">
+            ${t.due_date ? `<span class="pill">Due ${fmtDate(t.due_date)}</span>` : ''}
+            <span class="pill">Progress ${t.progress}%</span>
+          </div>
+          ${t.notes ? `<div class="muted small" style="margin-top:6px">Notes: ${t.notes}</div>` : ''}
+          <div class="flex" style="margin-top:10px">
+            <button class="btn text small" data-del="${t.id}">Delete Task</button>
+          </div>
+
+          <div style="margin-top:10px">
+            <div class="row">
+              <div>
+                <label class="small">Sub-task Title</label>
+                <input placeholder="e.g., Collect datasets" data-st-title="${t.id}" />
+              </div>
+              <div>
+                <label class="small">Due Date</label>
+                <input type="date" data-st-due="${t.id}" />
+              </div>
+            </div>
+            <label class="small">Description</label>
+            <textarea data-st-desc="${t.id}"></textarea>
+            <label class="small">Priority</label>
+            <select data-st-priority="${t.id}">
+              <option value="1">High</option>
+              <option value="2">Medium</option>
+              <option value="3" selected>Low</option>
+            </select>
+            <div style="margin-top:8px"><button class="btn text small" data-add-sub="${t.id}">Add Sub-task</button></div>
+          </div>
+
+          <div style="margin-top:8px">
+            ${(t.subtasks || []).map(st => `
+              <div class="sub">
+                <div>
+                  <div><strong>${st.title}</strong> ${st.priority ? `<span class="muted small">(P${st.priority})</span>` : ''}</div>
+                  <div class="muted small">${st.description || ''}</div>
+                  <div class="muted small">${st.due_date ? 'Due '+fmtDate(st.due_date) : ''}</div>
+                </div>
+                <div class="right">
+                  <label class="small"><input type="checkbox" data-toggle="${t.id}:${st.id}" ${st.done ? 'checked' : ''}/> Done</label>
+                  <button class="btn text small" data-del-sub="${t.id}:${st.id}">Delete</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        root.appendChild(div);
+      }
+
+      // Wire buttons
+      root.querySelectorAll('[data-del]').forEach(btn => {
+        btn.onclick = async () => {
+          try { await api('/tasks/'+btn.dataset.del, { method:'DELETE' }); await load(); }
+          catch (e) { alert(e.message); }
+        };
+      });
+      root.querySelectorAll('[data-add-sub]').forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.dataset.addSub;
+          const title = document.querySelector(`[data-st-title="${id}"]`).value;
+          const description = document.querySelector(`[data-st-desc="${id}"]`).value;
+          const due = document.querySelector(`[data-st-due="${id}"]`).value || null;
+          const priority = parseInt(document.querySelector(`[data-st-priority="${id}"]`).value || '3', 10);
+          try {
+            await api(`/tasks/${id}/subtasks`, { method:'POST', body: JSON.stringify({ title, description, due_date: due, priority }) });
+            await load();
+          } catch (e) { alert(e.message); }
+        };
+      });
+      root.querySelectorAll('[data-del-sub]').forEach(btn => {
+        btn.onclick = async () => {
+          const [tid, sid] = btn.dataset.delSub.split(':');
+          try { await api(`/tasks/${tid}/subtasks/${sid}`, { method:'DELETE' }); await load(); }
+          catch (e) { alert(e.message); }
+        };
+      });
+      root.querySelectorAll('[data-toggle]').forEach(chk => {
+        chk.onchange = async () => {
+          const [tid, sid] = chk.dataset.toggle.split(':');
+          try { await api(`/tasks/${tid}/subtasks/${sid}/toggle`, { method:'POST', body: JSON.stringify({ done: chk.checked }) }); await load(); }
+          catch (e) { alert(e.message); chk.checked = !chk.checked; }
+        };
+      });
+
+    }
+
+    // Ensure DOM is ready, then fetch user and tasks
+    document.addEventListener('DOMContentLoaded', () => {
+      loadUser().then((ok) => { if (ok) load(); });
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dueInput = document.getElementById('t-due');
+      const dueBtn = document.getElementById('t-due-btn');
+      if (dueBtn && dueInput) {
+        dueBtn.addEventListener('click', () => {
+          if (typeof dueInput.showPicker === 'function') {
+            dueInput.showPicker();          // modern Chrome/Edge/Safari
+          } else {
+            dueInput.focus();               // fallback
+            // Some browsers open picker on focus+click
+            try { dueInput.click(); } catch {}
+          }
+        });
+      }
+    });
+
+    // Add Task button handler
+    document.addEventListener('DOMContentLoaded', () => {
+    const addBtn = document.getElementById('btn-add-task');
+    const statusEl = document.getElementById('status');
+
+    if (addBtn) {
+        addBtn.addEventListener('click', async () => {
+        const title = document.getElementById('t-title').value.trim();
+        const description = document.getElementById('t-desc').value;
+        const notes = document.getElementById('t-notes').value;
+        const due = document.getElementById('t-due').value || null;
+
+        statusEl.textContent = '';
+        if (!title) {
+          statusEl.textContent = 'Title is required.';
+          return;
+        }
+
+        try {
+          const res = await fetch('/tasks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ title, description, notes, due_date: due })
+          });
+          const body = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(body.error || (res.status + ' ' + res.statusText));
+
+          // Clear fields and refresh list
+          document.getElementById('t-title').value = '';
+          document.getElementById('t-desc').value = '';
+          document.getElementById('t-notes').value = '';
+          document.getElementById('t-due').value = '';
+          await load();
+          } catch (e) {
+          console.error('Add Task failed:', e);
+          statusEl.textContent = 'Add Task failed: ' + e.message;
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
