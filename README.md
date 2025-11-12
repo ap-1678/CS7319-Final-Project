@@ -14,6 +14,9 @@ taskmgr_layered/
 └─ presentation/
    └─ auth_routes.py
 
+Prerequisites:
+pip install -r requirements.txt
+
 1. Start app: python app.py
 2. Visit http://127.0.0.1:5000/ for the page.
 3. Sign Up (creates a profile and auto-logs in).
