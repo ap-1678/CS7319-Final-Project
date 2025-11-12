@@ -225,7 +225,15 @@
               </div>
               <div>
                 <label class="small">Due Date</label>
-                <input type="date" data-st-due="${t.id}" />
+                <div class="date-wrap">
+                  <input type="date" data-st-due="${t.id}" />
+                  <button type="button" class="picker-btn" data-st-due-btn="${t.id}" aria-label="Show date picker" title="Show date picker">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 3v3M17 3v3M4 9h16M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M8 13h3v3H8z" stroke-width="1.6" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
               </div>
             </div>
             <label class="small">Description</label>
@@ -290,6 +298,19 @@
           const [tid, sid] = chk.dataset.toggle.split(':');
           try { await api(`/tasks/${tid}/subtasks/${sid}/toggle`, { method:'POST', body: JSON.stringify({ done: chk.checked }) }); await load(); }
           catch (e) { alert(e.message); chk.checked = !chk.checked; }
+        };
+      });
+      // Activate sub-task date picker buttons
+      root.querySelectorAll('[data-st-due-btn]').forEach(btn => {
+        btn.onclick = () => {
+          const id = btn.dataset.stDueBtn;
+          const input = document.querySelector(`[data-st-due="${id}"]`);
+          if (input && typeof input.showPicker === 'function') {
+            input.showPicker();
+          } else if (input) {
+            input.focus();
+            try { input.click(); } catch {}
+          }
         };
       });
 
