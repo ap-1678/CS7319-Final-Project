@@ -24,10 +24,9 @@ class Task(db.Model):
             "description": self.description,
             "notes": self.notes,
             "due_date": self.due_date.isoformat() if self.due_date else None,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "created_at": self.created_at.isoformat(),
             "progress": progress,
             "subtasks": subs,
-
         }
 
 class SubTask(db.Model):
@@ -51,5 +50,4 @@ class SubTask(db.Model):
             "due_date": self.due_date.isoformat() if self.due_date else None,
             "done": self.done,
             "created_at": self.created_at.isoformat(),
-
         }
