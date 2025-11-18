@@ -11,13 +11,14 @@
     .wrap { max-width: 980px; margin: 24px auto; padding: 0 16px; }
     .card { background:#141722; border:1px solid #24293b; border-radius:14px; padding:16px; margin-bottom:16px; }
     label { display:block; font-size:12px; color:#9aa1b3; margin:10px 0 4px; }
-    input, textarea, select { width:100%; padding:10px; border-radius:10px; border:1px solid #24293b; background:#0f121a; color:#e9ecf1; }
+    input, textarea, select { width:100%; padding:10px; border-radius:10px; border:1px solid #24293b; background:#0f121a; color:#e9ecf1; box-sizing:border-box; }
     textarea { min-height:72px; }
     .row { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
     .btn { padding:10px 14px; background:linear-gradient(135deg,#6aa6ff,#9f7aea); color:white; border:none; border-radius:10px; cursor:pointer; font-weight:600; }
     .btn.text { background:transparent; border:1px solid #2a2f45; }
+    .btn.small { padding:6px 10px; font-size:12px; }
     .task { padding:12px; border:1px solid #24293b; border-radius:12px; margin-top:10px; background:#10131b; }
-    .task h3 { margin:0 0 6px; font-size:16px; }
+    .task h3 { margin:0 0 6px; font-size:16px; cursor:pointer; }
     .muted { color:#9aa1b3; font-size:12px; }
     .flex { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     .pill { font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid #2a2f45; }
@@ -25,39 +26,27 @@
     .right { display:flex; gap:8px; align-items:center; }
     .small { font-size:12px; }
 
-    /* Hide native calendar icon so we can use our own */
+    :root {
+      --control-h: 44px;
+      --prioLowBg:#0f2a1a; --prioLowBd:#145c39; --prioLowTx:#8cf0b6;
+      --prioMedBg:#2a260f; --prioMedBd:#8a6a00; --prioMedTx:#ffd966;
+      --prioHighBg:#2a1212; --prioHighBd:#a04444; --prioHighTx:#ffb4b4;
+    }
+
+    /* Priority-colored subtasks */
+    .sub.prio-low  { background:var(--prioLowBg);  border-color:var(--prioLowBd); }
+    .sub.prio-med  { background:var(--prioMedBg);  border-color:var(--prioMedBd); }
+    .sub.prio-high { background:var(--prioHighBg); border-color:var(--prioHighBd); }
+    .sub.prio-low  strong { color:var(--prioLowTx); }
+    .sub.prio-med  strong { color:var(--prioMedTx); }
+    .sub.prio-high strong { color:var(--prioHighTx); }
+
     input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0; }
     input[type="date"] { position: relative; }
 
-    /* Wrapper positions our custom button inside the input */
-    .date-wrap { position: relative; }
-    .date-wrap input[type="date"] { padding-right: 40px; }
+    .date-wrap { position: relative; display:block; width:100%; overflow:hidden; }
+    .date-wrap input[type="date"] { padding-right: 44px; }
 
-    /* Custom, bright calendar button */
-    .picker-btn {
-      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-      border: 1px solid #2a2f45; border-radius: 8px; background: #1b2030;
-      padding: 6px; display: inline-flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 0 0 2px rgba(106,166,255,.18);
-    }
-    .picker-btn:hover { background: #222842; }
-    .picker-btn svg { width: 16px; height: 16px; display: block; }
-
-    /* Make the icon bright */
-    .picker-btn svg path { stroke: #e9ecf1; }
-
-    /* Consistent control height across browsers */
-    :root { --control-h: 44px; }
-
-    /* REVERT any flex that may stretch fields in grid cells */
-    .row > div { display: block; }
-
-    /* Date wrapper: fill cell, clip any overflow from the overlayed button */
-    .date-wrap { position: relative; display: block; width: 100%; overflow: hidden; }
-
-    /* Inputs: identical box model so Title and Date align */
-    input, textarea, select { box-sizing: border-box; }
     input, .date-wrap input[type="date"] {
       height: var(--control-h);
       line-height: calc(var(--control-h) - 2px);
@@ -65,14 +54,8 @@
       width: 100%;
     }
 
-    /* Reserve space for custom picker button so text doesn't sit under it */
-    .date-wrap input[type="date"] { padding-right: 44px; }
-
-    /* Hide native icon; keep the native control functional */
-    input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0; }
     input[type="date"] { color-scheme: dark; }
 
-    /* Overlay bright custom button; it DOES NOT affect layout */
     .picker-btn {
       position: absolute;
       right: 8px;
@@ -93,16 +76,14 @@
     .picker-btn svg { width: 16px; height: 16px; display: block; }
     .picker-btn svg path { stroke: #e9ecf1; }
 
-    /* Compact, consistent checkbox for sub-tasks */
     .sub input[type="checkbox"] {
       width: 20px;
       height: 20px;
-      accent-color: #6aa6ff;       /* light blue theme color */
-      transform: translateY(1px);  /* vertically center better */
+      accent-color: #6aa6ff;
+      transform: translateY(1px);
       cursor: pointer;
     }
 
-    /* Optional: tighter spacing between checkbox and text */
     .sub label.small {
       display: flex;
       align-items: center;
@@ -111,6 +92,64 @@
       color: #e9ecf1;
     }
 
+    .toolbar {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      margin:8px 0 12px;
+    }
+    .toolbar input[type="text"] {
+      flex:1 1 220px;
+      height:36px;
+      padding:6px 10px;
+      font-size:13px;
+    }
+    .toolbar select {
+      flex:0 0 180px;
+      height:36px;
+      padding:6px 10px;
+      font-size:13px;
+    }
+    .section-title {
+      margin-top:8px;
+      margin-bottom:4px;
+      font-size:13px;
+      color:#9aa1b3;
+      font-weight:600;
+    }
+
+    .pivot {
+      margin-top:10px;
+      padding-top:10px;
+      border-top:1px dashed #2a3045;
+      display:none;
+    }
+    .pivot.open {
+      display:block;
+    }
+
+    .tasks-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      margin-bottom:8px;
+    }
+
+    .pivot .sub-filters {
+      display:flex;
+      gap:6px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .pivot select.sub-filter {
+      width:auto;
+      min-width:130px;
+      height:32px;
+      padding:4px 8px;
+      font-size:12px;
+    }
   </style>
 </head>
 <body>
@@ -124,230 +163,506 @@
   </div>
 </header>
 
-  <div class="wrap">
+<div class="wrap">
 
-    <div class="card">
-      <h2 style="margin:0 0 8px">Add Task</h2>
-      <div class="row">
-        <div>
-          <label>Title</label>
-          <input id="t-title" placeholder="e.g., Write Progress Report" />
+  <!-- Add Task (hidden, toggled by "New Task" button) -->
+  <div class="card" id="add-card" style="display:none">
+    <h2 style="margin:0 0 8px">Add Task</h2>
+    <div class="row">
+      <div>
+        <label>Title</label>
+        <input id="t-title" placeholder="e.g., Write Progress Report" />
+      </div>
+      <div>
+        <label>Overall Due Date</label>
+        <div class="date-wrap">
+          <input id="t-due" type="date" />
+          <button type="button" class="picker-btn" id="t-due-btn" aria-label="Show date picker" title="Show date picker">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M7 3v3M17 3v3M4 9h16M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
+                    stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 13h3v3H8z" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
-        <div>
-          <label>Overall Due Date</label>
-          <div class="date-wrap">
-            <input id="t-due" type="date" />
-            <button type="button" class="picker-btn" id="t-due-btn" aria-label="Show date picker" title="Show date picker">
-              <!-- clean, bright calendar icon (stroke adapts to CSS above) -->
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M7 3v3M17 3v3M4 9h16M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M8 13h3v3H8z" stroke-width="1.6" stroke-linejoin="round"/>
-              </svg>
-            </button>
+      </div>
+    </div>
+    <label>Description</label>
+    <textarea id="t-desc" placeholder="Short description"></textarea>
+    <label>Notes</label>
+    <textarea id="t-notes" placeholder="Any notes"></textarea>
+    <div style="margin-top:12px" class="flex">
+      <button class="btn" id="btn-add-task">Save Task</button>
+      <button class="btn text" id="btn-cancel-task" type="button">Cancel</button>
+    </div>
+    <div id="status" class="muted" style="margin-top:8px"></div>
+  </div>
+
+  <!-- Task List with Search / Sort / Status -->
+  <div class="card">
+    <div class="tasks-header">
+      <h2 style="margin:0">Your Tasks</h2>
+      <button class="btn small" id="btn-show-add" type="button">New Task</button>
+    </div>
+
+    <div class="toolbar">
+      <input id="sf-text" type="text" placeholder="Search by title, description, notes, or sub-task…" />
+      <select id="sort-select">
+        <option value="created_desc">Sort: Newest first</option>
+        <option value="created_asc">Sort: Oldest first</option>
+        <option value="due_asc">Sort: Due soonest</option>
+        <option value="due_desc">Sort: Due latest</option>
+        <option value="title_asc">Sort: Title A–Z</option>
+        <option value="title_desc">Sort: Title Z–A</option>
+      </select>
+      <select id="status-filter">
+        <option value="">Status: All</option>
+        <option value="in_progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+
+    <div class="section-title">In Progress</div>
+    <div id="list-inprogress"></div>
+
+    <div class="section-title" style="margin-top:12px;">Completed</div>
+    <div id="list-completed"></div>
+  </div>
+
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, (m) => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[m]));
+  }
+
+  async function api(path, options = {}) {
+    const r = await fetch(path, {
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      ...options
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || (r.status + ' ' + r.statusText));
+    return j;
+  }
+
+  function fmtDate(s) {
+    if (!s) return '';
+    try { return new Date(s).toLocaleDateString(); }
+    catch { return s; }
+  }
+  function toTime(s) {
+    if (!s) return 0;
+    const t = Date.parse(s);
+    return isNaN(t) ? 0 : t;
+  }
+  function normalize(s) { return String(s || '').toLowerCase(); }
+
+  async function loadUser() {
+    try {
+      const r = await fetch('/auth/me', { credentials: 'same-origin' });
+      const data = await r.json();
+      if (data && data.user && data.user.username) {
+        const span = $('username');
+        if (span) span.textContent = data.user.username;
+        return true;
+      }
+    } catch (e) {}
+    window.location.href = '/';
+    return false;
+  }
+
+  let allTasks = [];
+  let sort = 'created_desc';
+  let statusFilter = '';
+
+  function isCompleted(t) {
+    if (t.status && String(t.status).toLowerCase() === 'completed') return true;
+    const subs = t.subtasks || [];
+    return subs.length > 0 && subs.every(s => !!s.done);
+  }
+
+  function processTasks() {
+    const q = normalize($('sf-text').value);
+    let items = allTasks.slice();
+
+    if (q) {
+      items = items.filter(t => {
+        const subs = t.subtasks || [];
+        const hay = [
+          t.title,
+          t.description,
+          t.notes,
+          ...subs.map(st => st.title),
+          ...subs.map(st => st.description)
+        ].join(' ').toLowerCase();
+        return hay.includes(q);
+      });
+    }
+
+    if (statusFilter === 'completed') {
+      items = items.filter(isCompleted);
+    } else if (statusFilter === 'in_progress') {
+      items = items.filter(t => !isCompleted(t));
+    }
+
+    items.sort((a, b) => {
+      const ta = toTime(a.created_at);
+      const tb = toTime(b.created_at);
+      const da = toTime(a.due_date);
+      const db = toTime(b.due_date);
+      const sa = normalize(a.title);
+      const sb = normalize(b.title);
+      switch (sort) {
+        case 'created_asc':  return ta - tb;
+        case 'created_desc': return tb - ta;
+        case 'due_asc':      return da - db;
+        case 'due_desc':     return db - da;
+        case 'title_asc':    return sa.localeCompare(sb);
+        case 'title_desc':   return sb.localeCompare(sa);
+        default:             return tb - ta;
+      }
+    });
+
+    return items;
+  }
+
+  function renderTask(t) {
+    const completed = isCompleted(t);
+    const subtasks = t.subtasks || [];
+    const canComplete = subtasks.length > 0;
+
+    const div = document.createElement('div');
+    div.className = 'task';
+
+    const progressPill = (typeof t.progress === 'number')
+      ? `<span class="pill">Progress ${t.progress}%</span>` : '';
+
+    div.innerHTML = `
+      <div class="task-header">
+        <h3>${esc(t.title || '(Untitled)')}</h3>
+        <div class="muted small">${t.description ? esc(t.description) : ''}</div>
+        <div class="flex" style="margin-top:6px">
+          ${t.due_date ? `<span class="pill">Due ${fmtDate(t.due_date)}</span>` : ''}
+          ${progressPill}
+          <span class="muted small">
+            ${subtasks.length ? `${subtasks.filter(s=>s.done).length}/${subtasks.length} sub-tasks done` : 'No sub-tasks yet'}
+          </span>
+        </div>
+        ${t.notes ? `<div class="muted small" style="margin-top:6px">Notes: ${esc(t.notes)}</div>` : ''}
+        <div class="flex" style="margin-top:10px">
+          ${!completed && canComplete ? `<button class="btn text small" data-complete="${t.id}">Mark Complete</button>` : ''}
+          ${completed ? `<button class="btn text small" data-reopen="${t.id}">Reopen</button>` : ''}
+          <button class="btn text small" data-del="${t.id}">Delete Task</button>
+        </div>
+      </div>
+
+      <div class="pivot" id="pivot-${t.id}">
+        <div class="flex small" style="margin-top:4px; justify-content:space-between;">
+          <span class="muted">Sub-tasks</span>
+          <div class="sub-filters">
+            <select class="small sub-filter" data-subfilter="${t.id}">
+              <option value="">Show: All</option>
+              <option value="active">Show: Active</option>
+              <option value="done">Show: Completed</option>
+            </select>
+            <select class="small sub-filter" data-subprio="${t.id}">
+              <option value="">Priority: All</option>
+              <option value="1">Priority: High</option>
+              <option value="2">Priority: Medium</option>
+              <option value="3">Priority: Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="subs-${t.id}" style="margin-top:4px"></div>
+
+        <div style="margin-top:10px">
+          <button class="btn text small" data-new-sub="${t.id}" type="button">New Sub-task</button>
+        </div>
+
+        <div id="subform-${t.id}" style="display:none; margin-top:10px">
+          <div class="row">
+            <div>
+              <label class="small">Sub-task Title</label>
+              <input placeholder="e.g., Collect datasets" data-st-title="${t.id}" />
+            </div>
+            <div>
+              <label class="small">Due Date</label>
+              <div class="date-wrap">
+                <input type="date" data-st-due="${t.id}" />
+                <button type="button" class="picker-btn" data-st-due-btn="${t.id}" aria-label="Show date picker" title="Show date picker">
+                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 3v3M17 3v3M4 9h16M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"
+                          stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 13h3v3H8z" stroke-width="1.6" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <label class="small">Description</label>
+          <textarea data-st-desc="${t.id}"></textarea>
+          <label class="small">Priority</label>
+          <select data-st-priority="${t.id}">
+            <option value="1">High</option>
+            <option value="2">Medium</option>
+            <option value="3" selected>Low</option>
+          </select>
+          <div style="margin-top:8px" class="flex">
+            <button class="btn text small" data-add-sub="${t.id}" type="button">Save Sub-task</button>
+            <button class="btn text small" data-cancel-sub="${t.id}" type="button">Cancel</button>
           </div>
         </div>
       </div>
-      <label>Description</label>
-      <textarea id="t-desc" placeholder="Short description"></textarea>
-      <label>Notes</label>
-      <textarea id="t-notes" placeholder="Any notes"></textarea>
-      <div style="margin-top:12px"><button class="btn" id="btn-add-task">Add Task</button></div>
-      <div id="status" class="muted" style="margin-top:8px"></div>
-    </div>
+    `;
 
-    <div class="card">
-      <h2 style="margin:0 0 8px">Your Tasks</h2>
-      <div id="list"></div>
-    </div>
-
-  </div>
-
-  <script>
-    const $ = (id) => document.getElementById(id);
-
-    async function api(path, options={}) {
-      const r = await fetch(path, { headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', ...options });
-      const j = await r.json().catch(()=> ({}));
-      if (!r.ok) throw new Error(j.error || (r.status+' '+r.statusText));
-      return j;
+    const pivotEl = div.querySelector(`#pivot-${t.id}`);
+    const titleEl = div.querySelector('h3');
+    if (pivotEl && titleEl) {
+      titleEl.addEventListener('click', () => {
+        pivotEl.classList.toggle('open');
+      });
     }
 
-    function fmtDate(s) { if (!s) return ''; try { return new Date(s).toLocaleDateString(); } catch { return s } }
-
-    async function loadUser() {
-      try {
-        const r = await fetch('/auth/me', { credentials: 'same-origin' });
-        const data = await r.json();
-        if (data && data.user && data.user.username) {
-          const span = document.getElementById('username');
-          if (span) span.textContent = data.user.username;
-          return true;
-        }
-      } catch (e) {}
-      // If no session/user, go back to login page
-      window.location.href = '/';
-      return false;
-    }
-
-    async function load() {
-      try {
-        const data = await api('/tasks');
-        renderList(data.tasks || []);
-      } catch (e) {
-        $('list').innerHTML = '<p class="muted">Could not load tasks: '+e.message+'</p>';
-      }
-    }
-
-    function renderList(tasks) {
-      const root = $('list');
-      if (tasks.length === 0) { root.innerHTML = '<p class="muted">No tasks yet.</p>'; return; }
-      root.innerHTML = '';
-      for (const t of tasks) {
-        const div = document.createElement('div');
-        div.className = 'task';
-        div.innerHTML = `
-          <h3>${t.title}</h3>
-          <div class="muted small">${t.description ? t.description : ''}</div>
-          <div class="flex" style="margin-top:6px">
-            ${t.due_date ? `<span class="pill">Due ${fmtDate(t.due_date)}</span>` : ''}
-            <span class="pill">Progress ${t.progress}%</span>
-          </div>
-          ${t.notes ? `<div class="muted small" style="margin-top:6px">Notes: ${t.notes}</div>` : ''}
-          <div class="flex" style="margin-top:10px">
-            <button class="btn text small" data-del="${t.id}">Delete Task</button>
-          </div>
-
-          <div style="margin-top:10px">
-            <div class="row">
-              <div>
-                <label class="small">Sub-task Title</label>
-                <input placeholder="e.g., Collect datasets" data-st-title="${t.id}" />
-              </div>
-              <div>
-                <label class="small">Due Date</label>
-                <div class="date-wrap">
-                  <input type="date" data-st-due="${t.id}" />
-                  <button type="button" class="picker-btn" data-st-due-btn="${t.id}" aria-label="Show date picker" title="Show date picker">
-                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path d="M7 3v3M17 3v3M4 9h16M5 6h14a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M8 13h3v3H8z" stroke-width="1.6" stroke-linejoin="round"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <label class="small">Description</label>
-            <textarea data-st-desc="${t.id}"></textarea>
-            <label class="small">Priority</label>
-            <select data-st-priority="${t.id}">
-              <option value="1">High</option>
-              <option value="2">Medium</option>
-              <option value="3" selected>Low</option>
-            </select>
-            <div style="margin-top:8px"><button class="btn text small" data-add-sub="${t.id}">Add Sub-task</button></div>
-          </div>
-
-          <div style="margin-top:8px">
-            ${(t.subtasks || []).map(st => `
-              <div class="sub">
-                <div>
-                  <div><strong>${st.title}</strong> ${st.priority ? `<span class="muted small">(P${st.priority})</span>` : ''}</div>
-                  <div class="muted small">${st.description || ''}</div>
-                  <div class="muted small">${st.due_date ? 'Due '+fmtDate(st.due_date) : ''}</div>
-                </div>
-                <div class="right">
-                  <label class="small"><input type="checkbox" data-toggle="${t.id}:${st.id}" ${st.done ? 'checked' : ''}/> Done</label>
-                  <button class="btn text small" data-del-sub="${t.id}:${st.id}">Delete</button>
-                </div>
-              </div>
-            `).join('')}
-          </div>
-        `;
-        root.appendChild(div);
-      }
-
-      // Wire buttons
-      root.querySelectorAll('[data-del]').forEach(btn => {
-        btn.onclick = async () => {
-          try { await api('/tasks/'+btn.dataset.del, { method:'DELETE' }); await load(); }
-          catch (e) { alert(e.message); }
-        };
-      });
-      root.querySelectorAll('[data-add-sub]').forEach(btn => {
-        btn.onclick = async () => {
-          const id = btn.dataset.addSub;
-          const title = document.querySelector(`[data-st-title="${id}"]`).value;
-          const description = document.querySelector(`[data-st-desc="${id}"]`).value;
-          const due = document.querySelector(`[data-st-due="${id}"]`).value || null;
-          const priority = parseInt(document.querySelector(`[data-st-priority="${id}"]`).value || '3', 10);
-          try {
-            await api(`/tasks/${id}/subtasks`, { method:'POST', body: JSON.stringify({ title, description, due_date: due, priority }) });
-            await load();
-          } catch (e) { alert(e.message); }
-        };
-      });
-      root.querySelectorAll('[data-del-sub]').forEach(btn => {
-        btn.onclick = async () => {
-          const [tid, sid] = btn.dataset.delSub.split(':');
-          try { await api(`/tasks/${tid}/subtasks/${sid}`, { method:'DELETE' }); await load(); }
-          catch (e) { alert(e.message); }
-        };
-      });
-      root.querySelectorAll('[data-toggle]').forEach(chk => {
-        chk.onchange = async () => {
-          const [tid, sid] = chk.dataset.toggle.split(':');
-          try { await api(`/tasks/${tid}/subtasks/${sid}/toggle`, { method:'POST', body: JSON.stringify({ done: chk.checked }) }); await load(); }
-          catch (e) { alert(e.message); chk.checked = !chk.checked; }
-        };
-      });
-      // Activate sub-task date picker buttons
-      root.querySelectorAll('[data-st-due-btn]').forEach(btn => {
-        btn.onclick = () => {
-          const id = btn.dataset.stDueBtn;
-          const input = document.querySelector(`[data-st-due="${id}"]`);
-          if (input && typeof input.showPicker === 'function') {
-            input.showPicker();
-          } else if (input) {
-            input.focus();
-            try { input.click(); } catch {}
-          }
-        };
-      });
-
-    }
-
-    // Ensure DOM is ready, then fetch user and tasks
-    document.addEventListener('DOMContentLoaded', () => {
-      loadUser().then((ok) => { if (ok) load(); });
+    const subsWrap = div.querySelector(`#subs-${t.id}`);
+    subtasks.forEach(st => {
+      const sDiv = document.createElement('div');
+      const prioNum = Number(st.priority) || 3;
+      const prioClass = prioNum === 1 ? 'prio-high' : prioNum === 2 ? 'prio-med' : 'prio-low';
+      sDiv.className = 'sub ' + prioClass;
+      sDiv.dataset.done = st.done ? "1" : "0";
+      sDiv.dataset.priority = String(prioNum);
+      sDiv.innerHTML = `
+        <div>
+          <div><strong>${esc(st.title)}</strong> ${st.priority ? `<span class="muted small">(P${st.priority})</span>` : ''}</div>
+          <div class="muted small">${esc(st.description || '')}</div>
+          <div class="muted small">${st.due_date ? 'Due ' + fmtDate(st.due_date) : ''}</div>
+        </div>
+        <div class="right">
+          <label class="small">
+            <input type="checkbox" data-toggle="${t.id}:${st.id}" ${st.done ? 'checked' : ''}/> Done
+          </label>
+          <button class="btn text small" data-del-sub="${t.id}:${st.id}" type="button">Delete</button>
+        </div>
+      `;
+      subsWrap.appendChild(sDiv);
     });
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const dueInput = document.getElementById('t-due');
-      const dueBtn = document.getElementById('t-due-btn');
-      if (dueBtn && dueInput) {
-        dueBtn.addEventListener('click', () => {
-          if (typeof dueInput.showPicker === 'function') {
-            dueInput.showPicker();          // modern Chrome/Edge/Safari
-          } else {
-            dueInput.focus();               // fallback
-            // Some browsers open picker on focus+click
-            try { dueInput.click(); } catch {}
+    const subFilterSelect = div.querySelector(`[data-subfilter="${t.id}"]`);
+    const subPrioSelect = div.querySelector(`[data-subprio="${t.id}"]`);
+    if (subsWrap) {
+      const applyFilter = () => {
+        const mode = subFilterSelect ? subFilterSelect.value : '';
+        const pMode = subPrioSelect ? subPrioSelect.value : '';
+        subsWrap.querySelectorAll('.sub').forEach(el => {
+          const done = el.dataset.done === '1';
+          const prio = el.dataset.priority || '';
+          let show = true;
+
+          if (mode === 'active') show = !done;
+          else if (mode === 'done') show = done;
+
+          if (show && pMode) {
+            show = (prio === pMode);
           }
+
+          el.style.display = show ? '' : 'none';
         });
-      }
+      };
+      if (subFilterSelect) subFilterSelect.addEventListener('change', applyFilter);
+      if (subPrioSelect) subPrioSelect.addEventListener('change', applyFilter);
+      applyFilter();
+    }
+
+    const delBtn = div.querySelector(`[data-del="${t.id}"]`);
+    if (delBtn) {
+      delBtn.onclick = async () => {
+        if (!confirm('Delete this task?')) return;
+        try {
+          await api('/tasks/' + t.id, { method:'DELETE' });
+          await load();
+        } catch (e) { alert(e.message); }
+      };
+    }
+
+    const completeBtn = div.querySelector(`[data-complete="${t.id}"]`);
+    if (completeBtn) {
+      completeBtn.onclick = async () => {
+        try {
+          await api(`/tasks/${t.id}/complete`, { method:'POST' });
+          await load();
+        } catch (e) { alert(e.message); }
+      };
+    }
+    const reopenBtn = div.querySelector(`[data-reopen="${t.id}"]`);
+    if (reopenBtn) {
+      reopenBtn.onclick = async () => {
+        try {
+          await api(`/tasks/${t.id}/reopen`, { method:'POST' });
+          await load();
+        } catch (e) { alert(e.message); }
+      };
+    }
+
+    const newSubBtn = div.querySelector(`[data-new-sub="${t.id}"]`);
+    const subForm = div.querySelector(`#subform-${t.id}`);
+    const cancelSubBtn = div.querySelector(`[data-cancel-sub="${t.id}"]`);
+
+    if (newSubBtn && subForm) {
+      newSubBtn.addEventListener('click', () => {
+        const visible = subForm.style.display !== 'none';
+        subForm.style.display = visible ? 'none' : 'block';
+        if (!visible) {
+          const titleInput = subForm.querySelector(`[data-st-title="${t.id}"]`);
+          if (titleInput) titleInput.focus();
+        }
+      });
+    }
+
+    if (cancelSubBtn && subForm) {
+      cancelSubBtn.addEventListener('click', () => {
+        subForm.style.display = 'none';
+        const titleInput = subForm.querySelector(`[data-st-title="${t.id}"]`);
+        const descInput = subForm.querySelector(`[data-st-desc="${t.id}"]`);
+        const dueInput = subForm.querySelector(`[data-st-due="${t.id}"]`);
+        const prioSelect = subForm.querySelector(`[data-st-priority="${t.id}"]`);
+        if (titleInput) titleInput.value = '';
+        if (descInput) descInput.value = '';
+        if (dueInput) dueInput.value = '';
+        if (prioSelect) prioSelect.value = '3';
+      });
+    }
+
+    const addSubBtn = div.querySelector(`[data-add-sub="${t.id}"]`);
+    if (addSubBtn && subForm) {
+      addSubBtn.onclick = async () => {
+        const titleEl2 = subForm.querySelector(`[data-st-title="${t.id}"]`);
+        const descEl = subForm.querySelector(`[data-st-desc="${t.id}"]`);
+        const dueEl = subForm.querySelector(`[data-st-due="${t.id}"]`);
+        const prioEl = subForm.querySelector(`[data-st-priority="${t.id}"]`);
+        const title = (titleEl2?.value || '').trim();
+        const description = descEl ? descEl.value : '';
+        const due = dueEl ? (dueEl.value || null) : null;
+        const priority = parseInt(prioEl ? prioEl.value : '3', 10);
+        if (!title) { alert('Sub-task title is required.'); return; }
+        try {
+          await api(`/tasks/${t.id}/subtasks`, {
+            method:'POST',
+            body: JSON.stringify({ title, description, due_date: due, priority })
+          });
+          subForm.style.display = 'none';
+          if (titleEl2) titleEl2.value = '';
+          if (descEl) descEl.value = '';
+          if (dueEl) dueEl.value = '';
+          if (prioEl) prioEl.value = '3';
+          await load();
+        } catch (e) { alert(e.message); }
+      };
+    }
+
+    const subDueBtn = div.querySelector(`[data-st-due-btn="${t.id}"]`);
+    const subDueInput = div.querySelector(`[data-st-due="${t.id}"]`);
+    if (subDueBtn && subDueInput) {
+      subDueBtn.addEventListener('click', () => {
+        if (typeof subDueInput.showPicker === 'function') {
+          subDueInput.showPicker();
+        } else {
+          subDueInput.focus();
+          try { subDueInput.click(); } catch {}
+        }
+      });
+    }
+
+    div.querySelectorAll('[data-toggle]').forEach(chk => {
+      chk.addEventListener('change', async () => {
+        const [tid, sid] = chk.dataset.toggle.split(':');
+        try {
+          await api(`/tasks/${tid}/subtasks/${sid}/toggle`, {
+            method:'POST',
+            body: JSON.stringify({ done: chk.checked })
+          });
+          await load();
+        } catch (e) {
+          alert(e.message);
+          chk.checked = !chk.checked;
+        }
+      });
     });
 
-    // Add Task button handler
-    document.addEventListener('DOMContentLoaded', () => {
-    const addBtn = document.getElementById('btn-add-task');
-    const statusEl = document.getElementById('status');
+    div.querySelectorAll('[data-del-sub]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const [tid, sid] = btn.dataset.delSub.split(':');
+        if (!confirm('Delete this sub-task?')) return;
+        try {
+          await api(`/tasks/${tid}/subtasks/${sid}`, { method:'DELETE' });
+          await load();
+        } catch (e) { alert(e.message); }
+      });
+    });
+
+    return div;
+  }
+
+  function renderLists(items) {
+    const ip = $('list-inprogress');
+    const co = $('list-completed');
+    ip.innerHTML = '';
+    co.innerHTML = '';
+
+    if (!items.length) {
+      ip.innerHTML = '<p class="muted">No tasks found.</p>';
+      return;
+    }
+
+    items.forEach(t => {
+      const card = renderTask(t);
+      if (isCompleted(t)) co.appendChild(card);
+      else ip.appendChild(card);
+    });
+  }
+
+  async function load() {
+    try {
+      const data = await api('/tasks');
+      allTasks = Array.isArray(data) ? data : (data.tasks || []);
+      renderLists(processTasks());
+    } catch (e) {
+      $('list-inprogress').innerHTML = '<p class="muted">Could not load tasks: ' + esc(e.message) + '</p>';
+      $('list-completed').innerHTML = '';
+    }
+  }
+
+  function wireAddTask() {
+    const addBtn = $('btn-add-task');
+    const statusEl = $('status');
+    const dueInput = $('t-due');
+    const dueBtn = $('t-due-btn');
+    const cancelBtn = $('btn-cancel-task');
+    const card = $('add-card');
+
+    if (dueBtn && dueInput) {
+      dueBtn.addEventListener('click', () => {
+        if (typeof dueInput.showPicker === 'function') {
+          dueInput.showPicker();
+        } else {
+          dueInput.focus();
+          try { dueInput.click(); } catch {}
+        }
+      });
+    }
 
     if (addBtn) {
-        addBtn.addEventListener('click', async () => {
-        const title = document.getElementById('t-title').value.trim();
-        const description = document.getElementById('t-desc').value;
-        const notes = document.getElementById('t-notes').value;
-        const due = document.getElementById('t-due').value || null;
+      addBtn.addEventListener('click', async () => {
+        const title = $('t-title').value.trim();
+        const description = $('t-desc').value;
+        const notes = $('t-notes').value;
+        const due = $('t-due').value || null;
 
         statusEl.textContent = '';
         if (!title) {
@@ -365,19 +680,83 @@
           const body = await res.json().catch(() => ({}));
           if (!res.ok) throw new Error(body.error || (res.status + ' ' + res.statusText));
 
-          // Clear fields and refresh list
-          document.getElementById('t-title').value = '';
-          document.getElementById('t-desc').value = '';
-          document.getElementById('t-notes').value = '';
-          document.getElementById('t-due').value = '';
+          $('t-title').value = '';
+          $('t-desc').value = '';
+          $('t-notes').value = '';
+          $('t-due').value = '';
+          statusEl.textContent = '';
+          if (card) card.style.display = 'none';
           await load();
-          } catch (e) {
+        } catch (e) {
           console.error('Add Task failed:', e);
           statusEl.textContent = 'Add Task failed: ' + e.message;
-          }
-        });
-      }
-    });
-  </script>
+        }
+      });
+    }
+
+    if (cancelBtn && card) {
+      cancelBtn.addEventListener('click', () => {
+        $('t-title').value = '';
+        $('t-desc').value = '';
+        $('t-notes').value = '';
+        $('t-due').value = '';
+        statusEl.textContent = '';
+        card.style.display = 'none';
+      });
+    }
+  }
+
+  function wireAddTaskToggle() {
+    const showBtn = $('btn-show-add');
+    const card = $('add-card');
+    if (showBtn && card) {
+      showBtn.addEventListener('click', () => {
+        const visible = card.style.display !== 'none';
+        card.style.display = visible ? 'none' : 'block';
+        if (!visible) {
+          const titleInput = $('t-title');
+          if (titleInput) titleInput.focus();
+        }
+      });
+    }
+  }
+
+  function wireToolbar() {
+    const search = $('sf-text');
+    const sortSelect = $('sort-select');
+    const statusSelect = $('status-filter');
+
+    if (search) {
+      let tmr = null;
+      search.addEventListener('input', () => {
+        if (tmr) clearTimeout(tmr);
+        tmr = setTimeout(() => renderLists(processTasks()), 150);
+      });
+    }
+
+    if (sortSelect) {
+      sortSelect.addEventListener('change', () => {
+        sort = sortSelect.value;
+        renderLists(processTasks());
+      });
+    }
+
+    if (statusSelect) {
+      statusSelect.addEventListener('change', () => {
+        statusFilter = statusSelect.value || '';
+        renderLists(processTasks());
+      });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    const ok = await loadUser();
+    if (!ok) return;
+    wireAddTask();
+    wireAddTaskToggle();
+    wireToolbar();
+    await load();
+  });
+</script>
 </body>
 </html>

@@ -61,6 +61,8 @@
           </div>
           <button class="btn" id="btn-login" type="submit">Login</button>
           <div id="status-login" class="status" role="status"></div>
+          <div class="help">Tip: these talk to your Flask JSON endpoints at <code>/auth/login</code> and <code>/auth/me</code>.</div>
+          <span class="tiny"><a class="link" href="/auth/me" target="_blank" rel="noopener">Check session</a></span>
         </form>
       </div>
 
@@ -81,6 +83,8 @@
           </div>
           <button class="btn" id="btn-signup" type="submit">Create Account</button>
           <div id="status-signup" class="status" role="status"></div>
+          <div class="help">After sign up, you’re automatically logged in (session cookie).</div>
+          <span class="tiny"><a class="link" href="/auth/me" target="_blank" rel="noopener">Check session</a></span>
         </form>
       </div>
     </div>

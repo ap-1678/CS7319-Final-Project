@@ -32,6 +32,8 @@ from flask import Flask, render_template, redirect, session
 from db import init_db
 from presentation.auth_routes import auth_bp
 from presentation.tasks_routes import tasks_bp
+from presentation.search_filter_routes import search_filter_bp
+from presentation.task_completion_routes import task_completion_bp
 
 def create_app():
     app = Flask(__name__)
@@ -42,6 +44,9 @@ def create_app():
 
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(tasks_bp)  # serves /app and /tasks APIs
+    app.register_blueprint(
+        search_filter_bp)  # search / sort endpoints (if you use them)
+    app.register_blueprint(task_completion_bp)
 
     @app.route("/")
     def home():
